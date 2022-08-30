@@ -1,0 +1,20 @@
+def makexaxis(y,dx):
+    N = len(y)
+    return np.linspace(0,(N-1)*dx,N)
+def COT(x,fs,rpm,maxorder):
+    SamPerRev = 2*maxorder
+    x = scipy.signal.resample_poly(x,10,1)
+    t1 = makexaxis(rpm,1/fs)
+    fs2 = fs*10
+    t2 = makexaxis(x,1/fs2)
+    Ainst = 1/fs*np.cumsum(rpm/60)
+    minA = np.min(Ainst)
+    maxA = np.max(Ainst)
+    Fractions = np.arange(np.ceil(minA*SamPerRev)/SamPerRev,maxA,1/SamPerRev)
+    tt_f = scipy.interpolate.interp1d(Ainst,t1,kind='linear',fill_value='extrapolate')
+    tt = tt_f(Fractions)
+    xs_f = scipy.interpolate.interp1d(t2,x)
+    xs = xs_f(tt)
+    rpm_f = scipy.interpolate.interp1d(t1,rpm)
+    rpmnew = rpm_f(tt)
+    return xs,rpmnew,Fractions
